@@ -9,22 +9,19 @@
 
 </head>
 <body class="offset-sm-0 bg-dark text-light">
-    <div class="container">
-        <h1 class="h1"> Consulta de datos de temperatura del aire en colombia</h1>
-    </div>
-    
-    <div class="container">
-        <form  id="form">
+    <div class="container shadow-lg p-3">
+        <h1 class="h1 p-3"> Consulta de datos de temperatura del aire en colombia</h1>
+        <form  id="form" class="p-3">
             <div class="form-group">
                 <label for="input">Departamento: </label>
                 <input type="text" name="Departamento" id="input" class="form-control">
             </div>
             <input type="submit" value="Consultar" class="btn btn-primary">
-        </form>
+        </form>       
+        <h2 class="h2 p-3">Resultado:</h2>
+        <div id="table"></div> <!-- Acá se genera la tabla -->
     </div>
-
-    <div class="container"><h2 class="h2">Resultado:</h2></div>
-    <div id="table", class="container-sm"></div> <!-- Acá se genera la tabla -->
+    
 
     <script src="index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
