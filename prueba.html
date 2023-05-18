@@ -1,0 +1,73 @@
+<script>
+    var btnConsulta = document.getElementById("btnConsulta");
+  
+    btnConsulta.addEventListener("click", function() {
+      var departamento = document.getElementById("inputDepartamento").value;
+      var apiUrl = "URL_DE_LA_API";
+  
+      if (departamento) {
+        apiUrl += "?departamento=" + encodeURIComponent(departamento);
+      }
+  
+      fetch(apiUrl)
+        .then(function(response) {
+          if (response.ok) {
+            return response.json();
+          } else {
+            throw new Error("Error en la respuesta de la API");
+          }
+        })
+        .then(function(data) {
+          // Verificar si la respuesta es vacía
+          if (data.length === 0) {
+            return; // No mostrar nada si la respuesta es vacía
+          }
+  
+          var tabla = document.createElement("table");
+          var cabecera = document.createElement("thead");
+          var cuerpo = document.createElement("tbody");
+  
+          // Crear fila de cabecera
+          var filaCabecera = document.createElement("tr");
+          var columnasCabecera = ["Fecha", "Valor", "Estación", "Departamento", "Municipio"];
+  
+          columnasCabecera.forEach(function(columna) {
+            var th = document.createElement("th");
+            th.textContent = columna;
+            filaCabecera.appendChild(th);
+          });
+  
+          cabecera.appendChild(filaCabecera);
+          tabla.appendChild(cabecera);
+  
+          // Mostrar los primeros 10 resultados o todos los resultados si hay menos de 10
+          var resultados = data.slice(0, 10);
+  
+          resultados.forEach(function(resultado) {
+            var fila = document.createElement("tr");
+  
+            var columnas = [
+              resultado.fecha,
+              resultado.valor,
+              resultado.estacion,
+              resultado.departamento,
+              resultado.municipio
+            ];
+  
+            columnas.forEach(function(columna) {
+              var td = document.createElement("td");
+              td.textContent = columna;
+              fila.appendChild(td);
+            });
+  
+            cuerpo.appendChild(fila);
+          });
+  
+          tabla.appendChild(cuerpo);
+          document.body.appendChild(tabla);
+        })
+        .catch(function(error) {
+          console.log("Error en la consulta a la API:", error);
+        });
+    });
+  </script>

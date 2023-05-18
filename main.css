@@ -1,0 +1,10 @@
+table, th, td {
+    border: 1px solid;
+    font-size: 11px;
+    text-align: center;
+}
+
+thead {
+    font-weight: bold;
+}
+
