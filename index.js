@@ -2,7 +2,7 @@ const api_url = 'https://www.datos.gov.co/resource/ccvq-rp9s.json';
 const responseField = document.querySelector('#table');
 
 async function getData(departamento){
-    const url = `${api_url}?departamento=${departamento}`
+    const url = departamento.length === 0 ? api_url : `${api_url}?departamento=${departamento}`
     const response = await fetch(url)
     if (!response.ok) {
         throw new Error('!Petición fallida¡');
@@ -11,13 +11,16 @@ async function getData(departamento){
     return jsonData;
 }
 
-async function genTable(event) {
+async function generateTable(event) {
     event.preventDefault();
     const departamento = document.querySelector("#input").value.toUpperCase();
 
+    const spinner_pos = document.createElement("div");
+    spinner_pos.className = "d-flex justify-content-center"
     const spinner = document.createElement("div");
-    spinner.className = "spinner-border align-content-lg-center";
-    responseField.innerHTML = spinner.outerHTML;
+    spinner.className = "spinner-border";
+    spinner_pos.appendChild(spinner)
+    responseField.innerHTML = spinner_pos.outerHTML;
 
     const data = await getData(departamento).catch((error) =>{
         console.log(error);
@@ -28,6 +31,7 @@ async function genTable(event) {
     const firstRow = document.createElement("tr");
     const tblBody = document.createElement("tbody");
     table.className= "table table-striped table-dark"
+    tblHead.className = "shadow-lg"
 
     const fields = {
         "Fecha" : "fechaobservacion",
@@ -49,7 +53,7 @@ async function genTable(event) {
 
     for (const dataRow of data.slice(0,10)){
         const row = document.createElement("tr");
-        row.className = "text-sm-center text-wrap"
+        row.className = "text-sm-center text-wrap shadow-sm"
         for (const field in fields){
             const cell = document.createElement("td");
             const cellText = document.createTextNode(`${dataRow[fields[field]]}`);
@@ -63,4 +67,4 @@ async function genTable(event) {
     setTimeout(() => responseField.innerHTML = table.outerHTML, 500);
 }
 
-document.querySelector("#form").addEventListener("submit",genTable);
+document.querySelector("#form").addEventListener("submit",generateTable);
