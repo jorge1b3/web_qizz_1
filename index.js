@@ -13,7 +13,7 @@ async function getData(departamento){
 
 async function genTable(event) {
     event.preventDefault();
-    const departamento = document.getElementById("input").value.toUpperCase();
+    const departamento = document.querySelector("#input").value.toUpperCase();
 
     const spinner = document.createElement("div");
     spinner.className = "spinner-border align-content-lg-center";
@@ -63,4 +63,4 @@ async function genTable(event) {
     setTimeout(() => responseField.innerHTML = table.outerHTML, 500);
 }
 
-document.getElementById("form").addEventListener("submit",genTable);
+document.querySelector("#form").addEventListener("submit",genTable);
