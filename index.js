@@ -12,9 +12,13 @@ async function getData(departamento){
 }
 
 async function generateTable(event) {
+    // Evitamos el comportamiento predeterminado del botón
     event.preventDefault();
+
+    // Obtenemos el valor en el campo
     const departamento = document.querySelector("#input").value.toUpperCase();
 
+    // Hacemos una animación (un spiner) mientras se obtienen los datos
     const spinner_pos = document.createElement("div");
     spinner_pos.className = "d-flex justify-content-center"
     const spinner = document.createElement("div");
@@ -22,10 +26,13 @@ async function generateTable(event) {
     spinner_pos.appendChild(spinner)
     responseField.innerHTML = spinner_pos.outerHTML;
 
+    // Obtenemos los datos mediante funciones asíncronas
     const data = await getData(departamento).catch((error) =>{
         console.log(error);
         throw new Error("No se pudo procesar la solicitud");
     })
+
+    // Creando partes de la tabla
     const table   = document.createElement("table");
     const tblHead = document.createElement("thead");
     const firstRow = document.createElement("tr");
@@ -33,6 +40,7 @@ async function generateTable(event) {
     table.className= "table table-striped table-dark"
     tblHead.className = "shadow-lg"
 
+    // Los campos a buscar y mostrar
     const fields = {
         "Fecha" : "fechaobservacion",
         "Valor" : "valorobservado",
@@ -41,6 +49,7 @@ async function generateTable(event) {
         "Municipio" : "municipio"
     }
 
+    // Llenando cabecera
     for (const field in fields){
         const cellText = document.createTextNode(`${field}`)
         const cell = document.createElement("th");
@@ -51,6 +60,7 @@ async function generateTable(event) {
     tblHead.appendChild(firstRow);
     table.appendChild(tblHead);
 
+    // Llenando cuerpo d la tabla (solo hasta 10 valores)
     for (const dataRow of data.slice(0,10)){
         const row = document.createElement("tr");
         row.className = "text-sm-center text-wrap shadow-sm"
@@ -64,7 +74,8 @@ async function generateTable(event) {
     }
     
     table.appendChild(tblBody);
-    setTimeout(() => responseField.innerHTML = table.outerHTML, 500);
+    responseField.innerHTML = table.outerHTML
 }
 
+// Agregamos un evento al botón form para que ejecutr generateTable al hacer click
 document.querySelector("#form").addEventListener("submit",generateTable);
