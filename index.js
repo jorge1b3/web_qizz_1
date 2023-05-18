@@ -50,28 +50,28 @@ async function generateTable(event) {
     }
 
     // Llenando cabecera
-    for (const field in fields){
-        const cellText = document.createTextNode(`${field}`)
+    Object.keys(fields).forEach(label =>{
+        const cellText = document.createTextNode(`${label}`)
         const cell = document.createElement("th");
         cell.className = "col text-center"
         cell.appendChild(cellText);
         firstRow.appendChild(cell);
-    }
+    });
     tblHead.appendChild(firstRow);
     table.appendChild(tblHead);
 
-    // Llenando cuerpo d la tabla (solo hasta 10 valores)
-    for (const dataRow of data.slice(0,10)){
+    // Llendando cuerpo de la tabla
+    data.slice(0,10).forEach(currentItem => {
         const row = document.createElement("tr");
         row.className = "text-sm-center text-wrap shadow-sm"
-        for (const field in fields){
+        Object.values(fields).forEach(key =>{
             const cell = document.createElement("td");
-            const cellText = document.createTextNode(`${dataRow[fields[field]]}`);
+            const cellText = document.createTextNode(`${currentItem[key]}`)
             cell.appendChild(cellText);
             row.appendChild(cell);
-        }
+        });
         tblBody.appendChild(row);
-    }
+    });
     
     table.appendChild(tblBody);
     responseField.innerHTML = table.outerHTML
