@@ -1,24 +1,20 @@
 const api_url = 'https://www.datos.gov.co/resource/ccvq-rp9s.json';
 const responseField = document.querySelector('#table');
 
-async function getData(departamento){
+const getData = async () => {
+    const departamento = document.querySelector("#input").value.toUpperCase();
     const url = departamento.length === 0 ? api_url : `${api_url}?departamento=${departamento}`
-    const response = await fetch(url)
+    const response = await fetch(url).catch(errorResponse => console.log(errorResponse.message));
     if (!response.ok) {
         throw new Error('!Petición fallida¡');
     }
-    const jsonData = await response.json();
-    return jsonData;
+    renderResponse(await response.json());
 }
 
-async function generateTable(event) {
-    // Evitamos el comportamiento predeterminado del botón
+const generateTable = event =>{
     event.preventDefault();
 
-    // Obtenemos el valor en el campo
-    const departamento = document.querySelector("#input").value.toUpperCase();
-
-    // Hacemos una animación (un spiner) mientras se obtienen los datos
+    // Dibujamos un spiner
     const spinner_pos = document.createElement("div");
     spinner_pos.className = "d-flex justify-content-center"
     const spinner = document.createElement("div");
@@ -26,19 +22,21 @@ async function generateTable(event) {
     spinner_pos.appendChild(spinner)
     responseField.innerHTML = spinner_pos.outerHTML;
 
-    // Obtenemos los datos mediante funciones asíncronas
-    const data = await getData(departamento).catch((error) =>{
-        console.log(error);
-        throw new Error("No se pudo procesar la solicitud");
-    })
+    getData();
+}
+
+const renderResponse = data => {
+    if (data.errors){
+        responseField.innerHTML = `<p>No se ha podido generar la tabla</p>`;
+        return;
+    }
 
     // Creando partes de la tabla
     const table   = document.createElement("table");
     const tblHead = document.createElement("thead");
     const firstRow = document.createElement("tr");
     const tblBody = document.createElement("tbody");
-    table.className= "table table-striped table-dark"
-    tblHead.className = "shadow-lg"
+    table.className= "table table-striped table-blue"
 
     // Los campos a buscar y mostrar
     const fields = {
@@ -51,10 +49,9 @@ async function generateTable(event) {
 
     // Llenando cabecera
     Object.keys(fields).forEach(label =>{
-        const cellText = document.createTextNode(`${label}`)
         const cell = document.createElement("th");
         cell.className = "col text-center"
-        cell.appendChild(cellText);
+        cell.innerHTML = `<p>${label}<\p>`
         firstRow.appendChild(cell);
     });
     tblHead.appendChild(firstRow);
@@ -66,8 +63,7 @@ async function generateTable(event) {
         row.className = "text-sm-center text-wrap shadow-sm"
         Object.values(fields).forEach(key =>{
             const cell = document.createElement("td");
-            const cellText = document.createTextNode(`${currentItem[key]}`)
-            cell.appendChild(cellText);
+            cell.innerHTML = `<p>${currentItem[key]}<\p>`
             row.appendChild(cell);
         });
         tblBody.appendChild(row);
@@ -75,7 +71,6 @@ async function generateTable(event) {
     
     // Guardamos el body en la tabla
     table.appendChild(tblBody);
-
     // Remplazamos todo el texto HTML dentro del campo responseField con la tabla
     responseField.innerHTML = table.outerHTML
 }
