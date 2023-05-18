@@ -5,10 +5,10 @@ const api_url = 'https://www.datos.gov.co/resource/ccvq-rp9s.json';
 const responseField = document.querySelector('#table');
 
 async function getData(departamento){
-    url = `${api_url}?departamento=${departamento}`
+    const url = `${api_url}?departamento=${departamento}`
     const response = await fetch(url)
     if (!response.ok) {
-        throw new Error('Request failed');
+        throw new Error('!Petición fallida¡');
     }
     const jsonData = await response.json();
     return jsonData;
@@ -16,22 +16,22 @@ async function getData(departamento){
 
 async function genTable(event) {
     event.preventDefault();
-    var departamento = document.getElementById("input").value;
+    const departamento = document.getElementById("input").value;
 
     const data = await getData(departamento).catch((error) =>{
         console.log(error);
         throw new Error("No se pudo procesar la solicitud");
     })
 
-    var tabla   = document.createElement("table");
-    var tblHead = document.createElement("thead");
-    var tblBody = document.createElement("tbody");
+    const tabla   = document.createElement("table");
+    const tblHead = document.createElement("thead");
+    const tblBody = document.createElement("tbody");
     tabla.className= "table table-bordered table-striped table-sm"
 
-    var tbltr = document.createElement("tr");
+    let tbltr = document.createElement("tr");
     for (head in data[0]){
-        var textoCelda = document.createTextNode(`${head}`)
-        var celda = document.createElement("th");
+        const textoCelda = document.createTextNode(`${head}`)
+        const celda = document.createElement("th");
         celda.className = "col text-center"
         celda.appendChild(textoCelda);
         tbltr.appendChild(celda);
@@ -40,11 +40,11 @@ async function genTable(event) {
     tabla.appendChild(tblHead);
 
     for (const row of data.slice(0,10)){
-        var hilera = document.createElement("tr");
+        const hilera = document.createElement("tr");
         hilera.className = "text-sm-center text-wrap"
         for (value in row){
-            var celda = document.createElement("td");
-            var textoCelda = document.createTextNode(`${row[value]}`);
+            const celda = document.createElement("td");
+            const textoCelda = document.createTextNode(`${row[value]}`);
             celda.appendChild(textoCelda);
             hilera.appendChild(celda);
         }
