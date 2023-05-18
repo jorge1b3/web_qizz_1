@@ -73,7 +73,10 @@ async function generateTable(event) {
         tblBody.appendChild(row);
     });
     
+    // Guardamos el body en la tabla
     table.appendChild(tblBody);
+
+    // Remplazamos todo el texto HTML dentro del campo responseField con la tabla
     responseField.innerHTML = table.outerHTML
 }
 
