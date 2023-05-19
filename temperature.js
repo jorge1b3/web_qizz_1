@@ -1,10 +1,17 @@
 const api_url = 'https://www.datos.gov.co/resource/ccvq-rp9s.json';
+
+const form = document.querySelector("#form");
 const responseField = document.querySelector('#table');
+const inputField = document.querySelector("#input");
 
 const getData = async () => {
-    const departamento = document.querySelector("#input").value.toUpperCase();
-    const url = departamento.length === 0 ? api_url : `${api_url}?departamento=${departamento}`
-    const response = await fetch(url).catch(errorResponse => console.log(errorResponse.message));
+    const departamento = inputField.value.toUpperCase();
+    const url = departamento.length === 0 ? api_url : ''.concat(api_url)
+                                                        .concat('?departamento=',departamento);
+    const response = await fetch(url)
+        .catch(errorResponse => {
+            throw new Error(errorResponse)
+        });
     if (!response.ok) {
         throw new Error('!Petición fallida¡');
     }
@@ -51,7 +58,7 @@ const renderResponse = data => {
     Object.keys(fields).forEach(label =>{
         const cell = document.createElement("th");
         cell.className = "col text-center"
-        cell.innerHTML = `<p>${label}<\p>`
+        cell.innerHTML = '<p>'.concat(label,'<\p>');
         firstRow.appendChild(cell);
     });
     tblHead.appendChild(firstRow);
@@ -63,7 +70,7 @@ const renderResponse = data => {
         row.className = "text-sm-center text-wrap shadow-sm"
         Object.values(fields).forEach(key =>{
             const cell = document.createElement("td");
-            cell.innerHTML = `<p>${currentItem[key]}<\p>`
+            cell.innerHTML = '<p>'.concat(currentItem[key],'<\p>');
             row.appendChild(cell);
         });
         tblBody.appendChild(row);
@@ -76,4 +83,4 @@ const renderResponse = data => {
 }
 
 // Agregamos un evento al botón form para que ejecutr generateTable al hacer click
-document.querySelector("#form").addEventListener("submit",generateTable);
+form.addEventListener("submit",generateTable);
