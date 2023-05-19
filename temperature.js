@@ -1,4 +1,4 @@
-const api_url = 'https://www.datos.gov.co/resource/ccvq-rp9s.json';
+const apiUrl = 'https://www.datos.gov.co/resource/ccvq-rp9s.json';
 
 const form = document.querySelector("#form");
 const responseField = document.querySelector('#table');
@@ -6,36 +6,46 @@ const inputField = document.querySelector("#input");
 
 const getData = async () => {
     const departamento = inputField.value.toUpperCase();
-    const url = departamento.length === 0 ? api_url : ''.concat(api_url)
-                                                        .concat('?departamento=',departamento);
-    const response = await fetch(url)
-        .catch(errorResponse => {
-            throw new Error(errorResponse)
-        });
-    if (!response.ok) {
-        throw new Error('!Petición fallida¡');
+    const url = departamento.length === 0 ? apiUrl : apiUrl.concat('?departamento=',departamento);
+    try{
+        const response = await fetch(url);
+        if (response.ok){
+            const jsonResponse = await response.json();
+            renderResponse(jsonResponse);
+        }
+    } catch(e){
+        console.log(e);
     }
-    renderResponse(await response.json());
 }
 
 const generateTable = event =>{
     event.preventDefault();
 
+    // Limpiamos el contenedor de la tabla
+    while (responseField.firstChild) {
+        responseField.removeChild(responseField.firstChild);
+    }
+
     // Dibujamos un spiner
-    const spinner_pos = document.createElement("div");
-    spinner_pos.className = "d-flex justify-content-center"
+    const spinnerPos = document.createElement("div");
+    spinnerPos.className = "d-flex justify-content-center";
     const spinner = document.createElement("div");
     spinner.className = "spinner-border";
-    spinner_pos.appendChild(spinner)
-    responseField.innerHTML = spinner_pos.outerHTML;
+    spinnerPos.appendChild(spinner);
+    responseField.appendChild(spinnerPos);
 
     getData();
 }
 
 const renderResponse = data => {
     if (data.errors){
-        responseField.innerHTML = `<p>No se ha podido generar la tabla</p>`;
+        responseField.textContent = 'No se ha podido generar la tabla'
         return;
+    }
+
+    // Limpiamos el contenedor de la tabla
+    while (responseField.firstChild) {
+        responseField.removeChild(responseField.firstChild);
     }
 
     // Creando partes de la tabla
@@ -43,34 +53,36 @@ const renderResponse = data => {
     const tblHead = document.createElement("thead");
     const firstRow = document.createElement("tr");
     const tblBody = document.createElement("tbody");
-    table.className= "table table-striped table-blue"
+    table.className= "table table-striped table-blue text-center text-wrap";
 
     // Los campos a buscar y mostrar
-    const fields = {
-        "Fecha" : "fechaobservacion",
-        "Valor" : "valorobservado",
-        "Estación" : "nombreestacion",
-        "Departamento" : "departamento",
-        "Municipio" : "municipio"
-    }
+    const fields = new Map([
+        ["Fecha","fechaobservacion"],
+        ["Valor","valorobservado"],
+        ["Estación","nombreestacion"],
+        ["Departamento","departamento"],
+        ["Municipio","municipio"]
+    ]);
 
     // Llenando cabecera
-    Object.keys(fields).forEach(label =>{
+    Array.from(fields.keys()).forEach(label => {
         const cell = document.createElement("th");
-        cell.className = "col text-center"
-        cell.innerHTML = '<p>'.concat(label,'<\p>');
+        cell.className = "col";
+        cell.textContent = label;
         firstRow.appendChild(cell);
     });
+
+        
     tblHead.appendChild(firstRow);
     table.appendChild(tblHead);
 
     // Llendando cuerpo de la tabla
     data.slice(0,10).forEach(currentItem => {
         const row = document.createElement("tr");
-        row.className = "text-sm-center text-wrap shadow-sm"
-        Object.values(fields).forEach(key =>{
+        row.className = "shadow-sm";
+        Array.from(fields.values()).forEach(value => {
             const cell = document.createElement("td");
-            cell.innerHTML = '<p>'.concat(currentItem[key],'<\p>');
+            cell.textContent = currentItem[value];
             row.appendChild(cell);
         });
         tblBody.appendChild(row);
@@ -78,8 +90,8 @@ const renderResponse = data => {
     
     // Guardamos el body en la tabla
     table.appendChild(tblBody);
-    // Remplazamos todo el texto HTML dentro del campo responseField con la tabla
-    responseField.innerHTML = table.outerHTML
+    // Agregamos la tabla al DOM
+    responseField.appendChild(table);
 }
 
 // Agregamos un evento al botón form para que ejecutr generateTable al hacer click
