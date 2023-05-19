@@ -7,12 +7,15 @@ const inputField = document.querySelector("#input") as HTMLInputElement;
 
 const getData = async () => {
     const departamento:string = inputField.value.toUpperCase as unknown as string;
-    const url = departamento.length === 0 ? apiUrl : `${apiUrl}?departamento=${departamento}`
-    const response : Response = await fetch(url).catch(e => {throw new Error(e)});
-    if (!response.ok){
-        throw new Error('Failed Request!');
+    const url = departamento.length === 0 ? apiUrl : apiUrl.concat('?departamento=',departamento);
+    try{
+        const response : Response = await fetch(url);
+        if (response.ok){
+            renderResponse(await response.json());
+        }
+    }catch(e){
+        console.log(e)
     }
-    renderResponse(await response.json());
 }
 
 const generateTable = event =>{
@@ -26,11 +29,7 @@ const generateTable = event =>{
     spinner_pos.appendChild(spinner);
     responseField.innerHTML = spinner_pos.outerHTML;
 
-    try{
-        getData();
-    }catch(e){
-        console.log(e);
-    }
+    getData();
 }
 
 const renderResponse = data => {
@@ -59,7 +58,7 @@ const renderResponse = data => {
     Object.keys(fields).forEach(label =>{
         const cell = document.createElement("th");
         cell.className = "col text-center";
-        cell.innerHTML = `<p>${label}<\p>`;
+        cell.textContent = label;
         firstRow.appendChild(cell);
     });
     tblHead.appendChild(firstRow);
@@ -71,7 +70,7 @@ const renderResponse = data => {
         row.className = "text-sm-center text-wrap shadow-sm";
         Object.values(fields).forEach(key =>{
             const cell = document.createElement("td");
-            cell.innerHTML = `<p>${currentItem[key]}<\p>`;
+            cell.textContent = currentItem[key];
             row.appendChild(cell);
         });
         tblBody.appendChild(row);
