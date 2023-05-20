@@ -6,16 +6,19 @@ const inputField = document.querySelector('#input');
 
 const getData = async () => {
   const departamento = inputField.value.toUpperCase();
-  const url = departamento.length === 0 ? apiUrl : apiUrl.concat('?departamento=', departamento);
-  try {
-    const response = await fetch(url);
-    if (response.ok) {
-      const jsonResponse = await response.json();
-      renderResponse(jsonResponse);
-    };
-  } catch (e) {
-    console.log(e);
-  };
+  const url = departamento.length === 0
+    ? apiUrl
+    : apiUrl.concat('?departamento=', departamento);
+
+  const response = Promise.allSettled([
+    fetch(url).then(response => {
+      if (!response.ok) throw new Error(response.status); // Lanzamos un error si la respuesta no es ok
+      return response.json();
+    })])
+    .then(([{ value, reason }]) => {
+      return { data: value, error: reason }; // Retornamos un objeto con los datos y el error
+    });
+  renderResponse(await response);
 };
 
 const generateTable = event => {
@@ -37,16 +40,18 @@ const generateTable = event => {
   getData();
 };
 
-const renderResponse = data => {
-  if (data.errors) {
-    responseField.textContent = 'No se ha podido generar la tabla';
-    return;
-  };
-
+const renderResponse = response => {
   // Limpiamos el contenedor de la tabla
+  console.log(response);
   while (responseField.firstChild) {
     responseField.removeChild(responseField.firstChild);
   };
+
+  // Si hay un error lo mostramos en la consola y retornamos
+  if (response.error) {
+    console.log(response.error);
+    return;
+  }
 
   // Creando partes de la tabla
   const table = document.createElement('table');
@@ -65,10 +70,10 @@ const renderResponse = data => {
   ]);
 
   // Llenando cabecera
-  Array.from(fields.keys()).forEach(label => {
+  Array.from(fields.keys()).forEach(key => {
     const cell = document.createElement('th');
     cell.className = 'col';
-    cell.textContent = label;
+    cell.textContent = key;
     firstRow.appendChild(cell);
   });
 
@@ -77,10 +82,10 @@ const renderResponse = data => {
   table.appendChild(tblHead);
 
   // Llendando cuerpo de la tabla
-  data.slice(0, 10).forEach(currentItem => {
+  response.data.slice(0, 10).forEach(currentItem => {
     const row = document.createElement('tr');
     row.className = 'shadow-sm';
-    Array.from(fields.values()).forEach(value => {
+    Array.from(fields.values()).forEach((value) => {
       const cell = document.createElement('td');
       cell.textContent = currentItem[value];
       row.appendChild(cell);
