@@ -13,8 +13,9 @@
         <h1 class="h1 p-3"> Consulta de datos de temperatura del aire en colombia</h1>
         <form  id="form" class="p-3">
             <div class="form-group">
-                <label for="input">Departamento: </label>
-                <input type="text" name="Departamento" id="input" class="form-control">
+                <label for="input">Departamento(en mayúsculas): </label>
+                <!-- Se pide el departamento y se valida que solo sean letras mayúsculas -->
+                <input type="text" name="Departamento" id="input" class="form-control" pattern="[A-ZÑÁÉÍÓÚ]+"> 
             </div>
             <input type="submit" value="Consultar" class="btn btn-primary">
         </form>       
