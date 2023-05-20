@@ -4,14 +4,19 @@ const form = document.querySelector('#form');
 const responseField = document.querySelector('#table');
 const inputField = document.querySelector('#input');
 
+const config = {
+  metod: 'GET',
+  mode: 'cors'
+};
+
 const getData = async () => {
   const departamento = inputField?.value ?? '';
-  const url = departamento.length === 0
+  const url = ((departamento.length === 0))
     ? apiUrl
     : apiUrl.concat('?departamento=', departamento);
 
   const response = Promise.allSettled([
-    fetch(url).then(response => {
+    fetch(url, config).then(response => {
       if (!response.ok) throw new Error(response.status); // Lanzamos un error si la respuesta no es ok
       return response.json();
     })])
@@ -42,7 +47,6 @@ const generateTable = event => {
 
 const renderResponse = response => {
   // Limpiamos el contenedor de la tabla
-  console.log(response);
   while (responseField.firstChild) {
     responseField.removeChild(responseField.firstChild);
   };
