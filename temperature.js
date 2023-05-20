@@ -70,12 +70,12 @@ const renderResponse = response => {
   ]);
 
   // Llenando cabecera
-  Array.from(fields.keys()).forEach(key => {
+  for (const key of fields.keys()) {
     const cell = document.createElement('th');
     cell.className = 'col';
     cell.textContent = key;
     firstRow.appendChild(cell);
-  });
+  };
 
   // Guardamos la cabecera en la tabla
   tblHead.appendChild(firstRow);
@@ -85,11 +85,11 @@ const renderResponse = response => {
   response.data.slice(0, 10).forEach(currentItem => {
     const row = document.createElement('tr');
     row.className = 'shadow-sm';
-    Array.from(fields.values()).forEach((value) => {
+    for (const value of fields.values()) {
       const cell = document.createElement('td');
       cell.textContent = currentItem[value];
       row.appendChild(cell);
-    });
+    };
     tblBody.appendChild(row);
   });
 
