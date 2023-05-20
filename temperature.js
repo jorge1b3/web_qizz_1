@@ -5,7 +5,7 @@ const responseField = document.querySelector('#table');
 const inputField = document.querySelector('#input');
 
 const getData = async () => {
-  const departamento = inputField.value.toUpperCase();
+  const departamento = inputField?.value ?? '';
   const url = departamento.length === 0
     ? apiUrl
     : apiUrl.concat('?departamento=', departamento);
