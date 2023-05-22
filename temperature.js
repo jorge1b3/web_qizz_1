@@ -3,6 +3,7 @@ const apiUrl = 'https://www.datos.gov.co/resource/ccvq-rp9s.json';
 const form = document.querySelector('#form');
 const responseField = document.querySelector('#table');
 const inputField = document.querySelector('#input');
+const spinnerField = document.querySelector('#spinner');
 
 const config = {
   metod: 'GET',
@@ -30,14 +31,16 @@ const getData = async () => {
 
 const generateTable = event => {
   event.preventDefault();
+  // Limpia el contenido del div
+  if (responseField.firstChild) responseField.firstChild.replaceWith('');
 
   // Dibujamos un spiner
   const spinnerPos = document.createElement('div');
   spinnerPos.className = 'd-flex justify-content-center';
   const spinner = spinnerPos.appendChild(document.createElement('div'));
   spinner.className = 'spinner-border text-primary';
-  if (!responseField.firstChild) responseField.appendChild(spinnerPos);
-  responseField.firstChild.replaceWith(spinnerPos);
+  if (!spinnerField.firstChild) spinnerField.appendChild(spinnerPos);
+  else spinnerField.firstChild.replaceWith(spinnerPos);
 
   getData();
 };
@@ -49,12 +52,12 @@ const renderResponse = response => {
     return;
   }
 
-  // Creando partes de la tabla
+  // Creando la estructura de la tabla
   const table = document.createElement('table');
   table.className = 'table table-striped table-blue text-center text-wrap';
-  const tblHead = document.createElement('thead');
-  const firstRow = document.createElement('tr');
-  const tblBody = document.createElement('tbody');
+  const tblHead = table.appendChild(document.createElement('thead'));
+  const tblBody = table.appendChild(document.createElement('tbody'));
+
   // Los campos a buscar y mostrar
   const fields = new Map([
     ['Fecha', 'fechaobservacion'],
@@ -64,20 +67,19 @@ const renderResponse = response => {
     ['Municipio', 'municipio']
   ]);
 
-  // Creando un número para la cabecera
+  // Crenado la cabecera y añadiendo el campo número de fila
+  const firstRow = tblHead.appendChild(document.createElement('tr'));
   const number = firstRow.appendChild(document.createElement('th'));
   number.textContent = '#';
-  number.setAttribute('scope', 'col');
+
   // Llenando cabecera
   for (const key of fields.keys()) {
     const head = firstRow.appendChild(document.createElement('th'));
     head.textContent = key;
-    head.setAttribute('scope', 'col');
   };
 
-  // Guardamos la cabecera en la tabla
-  tblHead.appendChild(firstRow);
-  table.appendChild(tblHead);
+  // Poniendo el atributo scope en col a todos los elementos de la cabecera
+  firstRow.childNodes.forEach(node => node.setAttribute('scope', 'col'));
 
   // Llendando cuerpo de la tabla
   response.data.slice(0, 10).forEach((item, index) => {
@@ -96,10 +98,11 @@ const renderResponse = response => {
     tblBody.appendChild(row);
   });
 
-  // Guardamos el body en la tabla
-  table.appendChild(tblBody);
-  // Remplazamos el spiner por la tabla
-  responseField.firstChild.replaceWith(table);
+  // Removemos el spiner
+  spinnerField.firstChild.replaceWith('');
+  // Remplazamos el contenido del div por la tabla
+  if (!responseField.firstChild) responseField.appendChild(table);
+  else responseField.firstChild.replaceWith(table);
 };
 
 // Agregamos un evento al botón form para que ejecutr generateTable al hacer click
