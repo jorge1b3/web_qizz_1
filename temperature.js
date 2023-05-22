@@ -90,9 +90,8 @@ const renderResponse = response => {
     const row = document.createElement('tr');
     row.className = 'shadow-sm';
     for (const value of fields.values()) {
-      const cell = document.createElement('td');
-      cell.textContent = currentItem[value];
-      row.appendChild(cell);
+      row.appendChild(document.createElement('td'))
+        .textContent = currentItem[value];
     };
     tblBody.appendChild(row);
   });
