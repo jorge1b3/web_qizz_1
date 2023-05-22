@@ -17,11 +17,13 @@ const getData = async () => {
 
   const response = Promise.allSettled([
     fetch(url, config).then(response => {
-      if (!response.ok) throw new Error(response.status); // Lanzamos un error si la respuesta no es ok
+      // Lanzamos un error si la respuesta no es ok
+      if (!response.ok) throw new Error(response.status);
       return response.json();
     })])
     .then(([{ value, reason }]) => {
-      return { data: value, error: reason }; // Retornamos un objeto con los datos y el error
+      // Retornamos un objeto con los datos y el error
+      return { data: value, error: reason };
     });
   renderResponse(await response);
 };
@@ -29,28 +31,18 @@ const getData = async () => {
 const generateTable = event => {
   event.preventDefault();
 
-  // Limpiamos el contenedor de la tabla
-  while (responseField.firstChild) {
-    responseField.removeChild(responseField.firstChild);
-  };
-
   // Dibujamos un spiner
   const spinnerPos = document.createElement('div');
   spinnerPos.className = 'd-flex justify-content-center';
-  const spinner = document.createElement('div');
-  spinner.className = 'spinner-border';
-  spinnerPos.appendChild(spinner);
-  responseField.appendChild(spinnerPos);
+  const spinner = spinnerPos.appendChild(document.createElement('div'));
+  spinner.className = 'spinner-border text-primary';
+  if (!responseField.firstChild) responseField.appendChild(spinnerPos);
+  responseField.firstChild.replaceWith(spinnerPos);
 
   getData();
 };
 
 const renderResponse = response => {
-  // Limpiamos el contenedor de la tabla
-  while (responseField.firstChild) {
-    responseField.removeChild(responseField.firstChild);
-  };
-
   // Si hay un error lo mostramos en la consola y retornamos
   if (response.error) {
     console.log(response.error);
@@ -59,11 +51,10 @@ const renderResponse = response => {
 
   // Creando partes de la tabla
   const table = document.createElement('table');
+  table.className = 'table table-striped table-blue text-center text-wrap';
   const tblHead = document.createElement('thead');
   const firstRow = document.createElement('tr');
   const tblBody = document.createElement('tbody');
-  table.className = 'table table-striped table-blue text-center text-wrap';
-
   // Los campos a buscar y mostrar
   const fields = new Map([
     ['Fecha', 'fechaobservacion'],
@@ -73,12 +64,15 @@ const renderResponse = response => {
     ['Municipio', 'municipio']
   ]);
 
+  // Creando un número para la cabecera
+  const number = firstRow.appendChild(document.createElement('th'));
+  number.textContent = '#';
+  number.setAttribute('scope', 'col');
   // Llenando cabecera
   for (const key of fields.keys()) {
-    const cell = document.createElement('th');
-    cell.className = 'col';
-    cell.textContent = key;
-    firstRow.appendChild(cell);
+    const head = firstRow.appendChild(document.createElement('th'));
+    head.textContent = key;
+    head.setAttribute('scope', 'col');
   };
 
   // Guardamos la cabecera en la tabla
@@ -86,20 +80,26 @@ const renderResponse = response => {
   table.appendChild(tblHead);
 
   // Llendando cuerpo de la tabla
-  response.data.slice(0, 10).forEach(currentItem => {
+  response.data.slice(0, 10).forEach((item, index) => {
     const row = document.createElement('tr');
-    row.className = 'shadow-sm';
+
+    // Creando un número para la fila
+    const number = row.appendChild(document.createElement('th'));
+    number.setAttribute('scope', 'row');
+    number.textContent = index + 1;
+
+    // Llenando la fila
     for (const value of fields.values()) {
-      row.appendChild(document.createElement('td'))
-        .textContent = currentItem[value];
+      const cell = row.appendChild(document.createElement('td'));
+      cell.textContent = item[value];
     };
     tblBody.appendChild(row);
   });
 
   // Guardamos el body en la tabla
   table.appendChild(tblBody);
-  // Agregamos la tabla al DOM
-  responseField.appendChild(table);
+  // Remplazamos el spiner por la tabla
+  responseField.firstChild.replaceWith(table);
 };
 
 // Agregamos un evento al botón form para que ejecutr generateTable al hacer click
