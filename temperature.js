@@ -4,22 +4,31 @@ const form = document.querySelector('#form');
 const responseField = document.querySelector('#table');
 const inputField = document.querySelector('#input');
 const spinnerField = document.querySelector('#spinner');
+const queryKey = 'departamento';
+let retryTimes = 0;
 
 const config = {
   metod: 'GET',
   mode: 'cors'
 };
 
+class NetworkError extends Error {
+  constructor (message) {
+    super(message);
+    this.name = 'NetworkError';
+  }
+}
+
 const getData = async () => {
-  const departamento = inputField?.value ?? '';
-  const url = ((departamento.length === 0))
+  const queryValue = inputField?.value ?? '';
+  const url = (queryValue.length === 0)
     ? apiUrl
-    : apiUrl.concat('?departamento=', departamento);
+    : apiUrl.concat(`?${queryKey}=`, queryValue);
 
   const response = Promise.allSettled([
     fetch(url, config).then(response => {
-      // Lanzamos un error si la respuesta no es ok
-      if (!response.ok) throw new Error(response.status);
+      // Lanzamos un NetworkError si la respuesta no es ok
+      if (!response.ok) throw new NetworkError(response.statusText);
       return response.json();
     })])
     .then(([{ value, reason }]) => {
@@ -48,7 +57,11 @@ const generateTable = event => {
 const renderResponse = response => {
   // Si hay un error lo mostramos en la consola y retornamos
   if (response.error) {
-    console.log(response.error);
+    console.error(response.error);
+    if (response.error instanceof NetworkError && retryTimes++ < 3) {
+      setTimeout(getData, 5000);
+      return;
+    };
     return;
   }
 
